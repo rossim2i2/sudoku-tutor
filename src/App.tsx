@@ -229,7 +229,7 @@ function App() {
             <h2>Hint options</h2>
             <p className="muted">Ranked from simpler techniques upward. Choose one to study.</p>
             <label className="hint-level-filter" htmlFor="hint-level">
-              Show hints up to
+              Show hints at or above
               <select id="hint-level" value={hintLevel} onChange={(event) => setHintLevel(event.target.value as HintLevel)}>
                 {Object.entries(hintLevelLabels).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
@@ -379,8 +379,8 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
 
 const filterHintsByLevel = (hints: HintStep[], level: HintLevel): HintStep[] => {
   if (level === 'all') return hints
-  const maxRank = hintLevelRank[level]
-  return hints.filter((hint) => hintLevelRank[hint.difficulty] <= maxRank)
+  const minRank = hintLevelRank[level]
+  return hints.filter((hint) => hintLevelRank[hint.difficulty] >= minRank)
 }
 
 const HintLegend = ({ hint }: { hint: HintStep }) => {
