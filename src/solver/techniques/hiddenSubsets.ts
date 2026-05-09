@@ -7,8 +7,9 @@ import { DIGITS } from '../types'
 
 export const findHiddenPairs = (candidates: CandidateMap): HintStep[] => findHiddenSubsets(candidates, 2, 'Hidden pair', 50)
 export const findHiddenTriples = (candidates: CandidateMap): HintStep[] => findHiddenSubsets(candidates, 3, 'Hidden triple', 55)
+export const findHiddenQuads = (candidates: CandidateMap): HintStep[] => findHiddenSubsets(candidates, 4, 'Hidden quad', 57)
 
-const findHiddenSubsets = (candidates: CandidateMap, size: 2 | 3, technique: string, sortOrder: number): HintStep[] => {
+const findHiddenSubsets = (candidates: CandidateMap, size: 2 | 3 | 4, technique: string, sortOrder: number): HintStep[] => {
   const steps: HintStep[] = []
 
   for (const house of allHouses()) {

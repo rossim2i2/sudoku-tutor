@@ -3,18 +3,21 @@ import { formatCell } from '../grid'
 import { allHouses, houseCells, houseLabel } from '../houses'
 import type { CandidateMap, CellIndex, Digit, HintStep } from '../types'
 
-export const findNakedTriples = (candidates: CandidateMap): HintStep[] => {
+export const findNakedTriples = (candidates: CandidateMap): HintStep[] => findNakedSubsets(candidates, 3, 'Naked triple', 45)
+export const findNakedQuads = (candidates: CandidateMap): HintStep[] => findNakedSubsets(candidates, 4, 'Naked quad', 47)
+
+const findNakedSubsets = (candidates: CandidateMap, size: number, technique: string, sortOrder: number): HintStep[] => {
   const steps: HintStep[] = []
 
   for (const house of allHouses()) {
     const unsolvedCells = houseCells(house).filter((cell) => {
-      const size = candidates.get(cell)?.size ?? 0
-      return size >= 2 && size <= 3
+      const count = candidates.get(cell)?.size ?? 0
+      return count >= 2 && count <= size
     })
 
-    for (const subsetCells of combinations(unsolvedCells, 3)) {
+    for (const subsetCells of combinations(unsolvedCells, size)) {
       const subsetDigits = unionCandidates(candidates, subsetCells)
-      if (subsetDigits.size !== 3) continue
+      if (subsetDigits.size !== size) continue
 
       const eliminations = houseCells(house)
         .filter((cell) => !subsetCells.includes(cell))
@@ -26,22 +29,22 @@ export const findNakedTriples = (candidates: CandidateMap): HintStep[] => {
 
       const key = [...subsetDigits].sort().join('')
       steps.push({
-        id: `naked-triple-${house.type}-${house.index}-${key}-${subsetCells.join('-')}`,
+        id: `${technique.toLowerCase().replace(' ', '-')}-${house.type}-${house.index}-${key}-${subsetCells.join('-')}`,
         type: 'elimination',
-        technique: 'Naked triple',
+        technique,
         difficulty: 'intermediate',
         targetCells: [...new Set(eliminations.map((item) => item.cell))],
         supportCells: subsetCells,
         houses: [house],
         eliminateCandidates: eliminations,
-        nudge: `${subsetCells.map(formatCell).join(', ')} form a naked triple in ${houseLabel(house)}.`,
+        nudge: `${subsetCells.map(formatCell).join(', ')} form a ${technique.toLowerCase()} in ${houseLabel(house)}.`,
         reasoning: [
-          `The three cells ${subsetCells.map(formatCell).join(', ')} collectively contain only candidates ${key}.`,
-          `Because those three cells are all in ${houseLabel(house)}, those three digits must occupy those three cells in some order.`,
+          `The ${size} cells ${subsetCells.map(formatCell).join(', ')} collectively contain only candidates ${key}.`,
+          `Because those ${size} cells are all in ${houseLabel(house)}, those digits must occupy those cells in some order.`,
           `No other cell in ${houseLabel(house)} can use ${[...subsetDigits].sort().join(', ')}.`,
         ],
         reveal: `Remove ${eliminations.map((item) => `${item.digit} from ${formatCell(item.cell)}`).join('; ')}.`,
-        sortOrder: 45,
+        sortOrder,
       })
     }
   }

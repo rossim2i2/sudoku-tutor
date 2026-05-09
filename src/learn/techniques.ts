@@ -188,4 +188,104 @@ export const techniques: TechniqueArticle[] = [
       'Eliminating from the rectangle corners instead of the other cells in the crossing lines.',
     ],
   },
+  {
+    slug: 'naked-quad',
+    title: 'Naked quad',
+    difficulty: 'Intermediate',
+    summary: 'Four cells in the same house collectively contain only four candidates, so those candidates cannot appear elsewhere in that house.',
+    whenToLook: [
+      'When four cells in one house have candidate sets drawn from the same four digits.',
+      'After naked pairs and triples are exhausted and candidates still need reducing.',
+    ],
+    steps: [
+      'Find four cells in one house.',
+      'Confirm their combined candidates are exactly four digits.',
+      'Those digits must occupy those four cells in some order.',
+      'Remove those digits from every other cell in the house.',
+    ],
+    mistakes: [
+      'Combining four cells whose candidates span more than four digits.',
+      'Applying eliminations outside the house where the quad exists.',
+    ],
+  },
+  {
+    slug: 'hidden-quad',
+    title: 'Hidden quad',
+    difficulty: 'Intermediate',
+    summary: 'Four digits are confined to the same four cells within a house, even if those cells contain other candidates.',
+    whenToLook: [
+      'When four digits have very limited placement options in a house.',
+      'After hidden pairs and triples are exhausted.',
+    ],
+    steps: [
+      'Pick four digits in one house.',
+      'Find all cells that can contain those digits.',
+      'If the possible cells are exactly four, those digits must occupy them.',
+      'Remove all other candidates from those four cells.',
+    ],
+    mistakes: [
+      'Accepting five or more possible cells — the pattern must be exact.',
+      'Removing the hidden digits instead of removing the other candidates.',
+    ],
+  },
+  {
+    slug: 'swordfish',
+    title: 'Swordfish',
+    difficulty: 'Advanced',
+    summary: 'Like an X-Wing but across three rows and three columns, allowing candidate eliminations from the crossing lines.',
+    whenToLook: [
+      'When X-Wing does not appear but a digit is restricted to two or three cells in exactly three rows.',
+      'Those positions must all fall within the same three columns.',
+    ],
+    steps: [
+      'Choose one candidate digit.',
+      'Find three rows where that digit appears in two or three cells.',
+      'Check whether all those cells fall within the same three columns.',
+      'Remove the candidate from other cells in those three columns.',
+    ],
+    mistakes: [
+      'Using rows where the candidate appears more than three times.',
+      'Confusing the base rows with the crossing columns when eliminating.',
+    ],
+  },
+  {
+    slug: 'jellyfish',
+    title: 'Jellyfish',
+    difficulty: 'Advanced',
+    summary: 'Like Swordfish but across four rows and four columns.',
+    whenToLook: [
+      'When Swordfish does not appear and a digit is restricted to two to four cells in exactly four rows.',
+      'All those positions must fall within the same four columns.',
+    ],
+    steps: [
+      'Choose one candidate digit.',
+      'Find four rows where that digit appears in two to four cells.',
+      'Confirm all those cells fall within the same four columns.',
+      'Remove the candidate from other cells in those four columns.',
+    ],
+    mistakes: [
+      'Using rows where the candidate appears more than four times.',
+      'Jellyfish is rare — exhaust X-Wing and Swordfish first.',
+    ],
+  },
+  {
+    slug: 'xy-wing',
+    title: 'XY-Wing',
+    difficulty: 'Advanced',
+    summary: 'A pivot cell with two candidates and two wing cells form a chain that forces a candidate out of cells seeing both wings.',
+    whenToLook: [
+      'When a bi-value cell (exactly two candidates) has two peers that are also bi-value.',
+      'When those two peers share a candidate with each other but not both with the pivot.',
+    ],
+    steps: [
+      'Find a pivot cell with exactly two candidates A and B.',
+      'Find a wing sharing A with the pivot and containing a third candidate C.',
+      'Find another wing sharing B with the pivot and also containing C.',
+      'Remove C from every cell that sees both wings.',
+    ],
+    mistakes: [
+      'Using a wing that shares both pivot candidates instead of just one.',
+      'Eliminating from cells that only see one wing, not both.',
+    ],
+  },
 ]
