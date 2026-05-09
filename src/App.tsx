@@ -129,7 +129,7 @@ function App() {
       <header className="app-header">
         <div>
           <p className="eyebrow">Sudoku Tutor</p>
-          <h1>Learn the next logical move.</h1>
+          <h1>Learn the next move.</h1>
           <p className="lede">Enter a puzzle, compare hint options, and see the reasoning behind each step.</p>
         </div>
         <div className="header-actions">
@@ -256,6 +256,13 @@ function App() {
                   </ol>
                 )}
                 {spoilerLevel === 'reveal' && <p className="reveal">{selectedHint.reveal}</p>}
+                {spoilerLevel === 'reveal' && selectedHint.eliminateCandidates.length > 0 && (
+                  <ul className="elimination-list">
+                    {selectedHint.eliminateCandidates.map((item) => (
+                      <li key={`${item.cell}-${item.digit}`}>Remove {item.digit} from r{rowOf(item.cell) + 1}c{columnOf(item.cell) + 1}</li>
+                    ))}
+                  </ul>
+                )}
               </>
             ) : (
               <p className="empty-state">Select a hint to see how it works.</p>

@@ -68,4 +68,44 @@ export const techniques: TechniqueArticle[] = [
       'Forgetting that a multi-cell outie gives a total, not necessarily individual digits.',
     ],
   },
+  {
+    slug: 'locked-candidates',
+    title: 'Locked candidates',
+    difficulty: 'Intermediate',
+    summary: 'A candidate is restricted to the overlap of a box and a row or column, allowing eliminations outside that overlap.',
+    whenToLook: [
+      'When all possible locations for a digit in a box line up in one row or column.',
+      'When all possible locations for a digit in a row or column fall inside one box.',
+    ],
+    steps: [
+      'Choose one candidate digit.',
+      'Look at a box and see whether that digit only appears in one row or column.',
+      'Or look at a row/column and see whether the digit only appears inside one box.',
+      'Remove that digit from the rest of the affected row, column, or box.',
+    ],
+    mistakes: [
+      'Eliminating from the support cells instead of from the rest of the affected house.',
+      'Forgetting that the candidate must be fully locked to the intersection.',
+    ],
+  },
+  {
+    slug: 'naked-pair',
+    title: 'Naked pair',
+    difficulty: 'Intermediate',
+    summary: 'Two cells in the same house contain the same two candidates, so those candidates can be removed from other cells in that house.',
+    whenToLook: [
+      'When candidate notation shows two cells with identical two-digit candidate sets.',
+      'When a row, column, or box has several unsolved cells but two are tightly constrained.',
+    ],
+    steps: [
+      'Find two cells in the same row, column, or box.',
+      'Confirm both cells contain exactly the same two candidates.',
+      'Those two digits must occupy those two cells in some order.',
+      'Remove both digits from every other cell in the house.',
+    ],
+    mistakes: [
+      'Using cells that share candidates but have extra candidates too.',
+      'Applying the elimination outside the house where the pair exists.',
+    ],
+  },
 ]

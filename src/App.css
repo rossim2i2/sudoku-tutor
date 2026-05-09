@@ -242,6 +242,12 @@
   font-weight: 800;
 }
 
+.elimination-list {
+  color: var(--text-strong);
+  margin: 10px 0 0;
+  padding-left: 1.2rem;
+}
+
 .saved-puzzle {
   display: grid;
   grid-template-columns: 1fr auto;
