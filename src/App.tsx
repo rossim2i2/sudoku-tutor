@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { computeCandidates } from './solver/candidates'
 import { boxOf, cellIndex, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
@@ -45,6 +45,9 @@ function App() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<SampleDifficulty>('Easy')
   const [hintLevel, setHintLevel] = useState<HintLevel>('all')
   const [pendingTechnique, setPendingTechnique] = useState<string | null>(null)
+  const [timerSeconds, setTimerSeconds] = useState(0)
+  const [timerStarted, setTimerStarted] = useState(false)
+  const [completionDismissed, setCompletionDismissed] = useState(false)
   const workspaceRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -62,13 +65,16 @@ function App() {
     errors.length === 0 && grid.every((cell) => cell.value !== null),
   [grid, errors])
 
+  const showCompletion = isComplete && !completionDismissed
+
   const highlighted = useMemo(() => buildHighlights(selectedCell, selectedHint, showPeers), [selectedCell, selectedHint, showPeers])
 
-  const updateCell = (index: CellIndex, value: Digit | null) => {
+  const updateCell = useCallback((index: CellIndex, value: Digit | null) => {
     setGrid((current) => setCellValue(current, index, value, value !== null))
     setSelectedHintId(null)
+    setTimerStarted(true)
     setSpoilerLevel('nudge')
-  }
+  }, [])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -109,7 +115,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedCell])
+  }, [selectedCell, updateCell])
 
   // Auto-select the first hint matching the requested technique after loading an example puzzle.
   // setTimeout defers the setState calls out of the effect body to satisfy the lint rule.
@@ -126,10 +132,23 @@ function App() {
     return () => clearTimeout(timer)
   }, [visibleHints, pendingTechnique])
 
+  useEffect(() => {
+    if (!timerStarted || isComplete) return
+    const interval = setInterval(() => setTimerSeconds((s) => s + 1), 1000)
+    return () => clearInterval(interval)
+  }, [timerStarted, isComplete])
+
+  const resetPuzzleState = () => {
+    setTimerSeconds(0)
+    setTimerStarted(false)
+    setCompletionDismissed(false)
+    setSelectedHintId(null)
+    setSelectedCell(null)
+  }
+
   const loadTechniqueExample = (grid: string, techniqueName: string) => {
     setGrid(parseGridString(grid))
-    setSelectedCell(null)
-    setSelectedHintId(null)
+    resetPuzzleState()
     setShowCandidates(true)
     setPendingTechnique(techniqueName)
     workspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -146,8 +165,7 @@ function App() {
   const loadPuzzle = (puzzle: SavedPuzzle) => {
     setGrid(gridFromSavedPuzzle(puzzle))
     setPuzzleName(puzzle.name)
-    setSelectedCell(null)
-    setSelectedHintId(null)
+    resetPuzzleState()
     setMessage(`Loaded “${puzzle.name}”.`)
   }
 
@@ -160,8 +178,7 @@ function App() {
   const importPuzzle = () => {
     try {
       setGrid(parseGridString(importText))
-      setSelectedHintId(null)
-      setSelectedCell(null)
+      resetPuzzleState()
       setMessage('Imported puzzle string.')
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not import puzzle.')
@@ -172,8 +189,7 @@ function App() {
     const sample = getRandomSample(selectedDifficulty)
     setGrid(parseGridString(sample.grid))
     setPuzzleName(sample.name)
-    setSelectedHintId(null)
-    setSelectedCell(null)
+    resetPuzzleState()
     setMessage(`Loaded ${sample.difficulty.toLowerCase()} sample: ${sample.name}.`)
   }
 
@@ -200,7 +216,7 @@ function App() {
             </select>
             <button type="button" onClick={loadSample}>Load</button>
           </div>
-          <button type="button" onClick={() => setGrid(emptyGrid())}>Clear</button>
+          <button type="button" onClick={() => { setGrid(emptyGrid()); resetPuzzleState() }}>Clear</button>
         </div>
       </header>
 
@@ -211,6 +227,7 @@ function App() {
               <label htmlFor="puzzle-name">Puzzle name</label>
               <input id="puzzle-name" value={puzzleName} onChange={(event) => setPuzzleName(event.target.value)} />
             </div>
+            <span className={`timer-display${isComplete ? ' timer-complete' : ''}`}>{formatTime(timerSeconds)}</span>
             <button type="button" onClick={savePuzzle}>Save puzzle</button>
           </div>
 
@@ -260,16 +277,28 @@ function App() {
           </div>
 
           <div className="board-status">
-            {isComplete && <span className="complete-line">Puzzle solved!</span>}
-            {!isComplete && errors.length > 0 && <span className="error-line">{errors[0]}</span>}
-            {!isComplete && message && !errors.length && <span className="status-line">{message}</span>}
-            {!isComplete && selectedCell !== null && !errors.length && !message && (
+            {errors.length > 0 && <span className="error-line">{errors[0]}</span>}
+            {!errors.length && message && <span className="status-line">{message}</span>}
+            {!errors.length && !message && selectedCell !== null && !isComplete && (
               <span className="status-line">
                 r{rowOf(selectedCell) + 1}c{columnOf(selectedCell) + 1}
                 {showCandidates && selectedCandidates && selectedCandidates.size > 0 ? ` · candidates: ${[...selectedCandidates].join(', ')}` : ''}
               </span>
             )}
           </div>
+
+          {showCompletion && (
+            <div className="completion-overlay" onClick={() => setCompletionDismissed(true)}>
+              <div className="completion-modal" onClick={(e) => e.stopPropagation()}>
+                <p className="completion-heading">Puzzle solved</p>
+                <p className="completion-time">{formatTime(timerSeconds)}</p>
+                <div className="completion-actions">
+                  <button type="button" onClick={() => { loadSample(); }}>New puzzle</button>
+                  <button type="button" className="btn-secondary" onClick={() => setCompletionDismissed(true)}>Close</button>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
 
         <aside className="side-panel">
@@ -443,6 +472,12 @@ const cellClassName = (index: CellIndex, highlighted: Map<CellIndex, string>, se
   if (rowOf(index) === 2 || rowOf(index) === 5) classes.push('box-border-bottom')
   if (boxOf(index) % 2 === 0) classes.push('subtle-box')
   return classes.join(' ')
+}
+
+const formatTime = (seconds: number): string => {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 const isEditableTarget = (target: EventTarget | null): boolean => {

@@ -68,16 +68,32 @@
 
 .board-card {
   padding: clamp(12px, 1.8vh, 18px);
+  position: relative;
 }
 
 .board-toolbar {
   justify-content: space-between;
+  align-items: flex-end;
   margin-bottom: 18px;
 }
 
 .board-toolbar > div {
   display: grid;
   gap: 6px;
+}
+
+.timer-display {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  min-width: 4ch;
+  text-align: center;
+}
+
+.timer-display.timer-complete {
+  color: var(--pattern);
 }
 
 .sudoku-grid {
@@ -480,6 +496,55 @@
 .complete-line {
   color: var(--pattern);
   font-weight: 700;
+}
+
+/* Completion modal */
+.completion-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+}
+
+.completion-modal {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 32px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.completion-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--pattern);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.completion-time {
+  font-family: var(--font-mono, monospace);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  line-height: 1;
+  margin: 4px 0 8px;
+}
+
+.completion-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
 }
 
 label {
