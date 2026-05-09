@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { computeCandidates } from './solver/candidates'
 import { boxOf, cellIndex, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
@@ -44,6 +44,8 @@ function App() {
   const [message, setMessage] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState<SampleDifficulty>('Easy')
   const [hintLevel, setHintLevel] = useState<HintLevel>('all')
+  const [pendingTechnique, setPendingTechnique] = useState<string | null>(null)
+  const workspaceRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -108,6 +110,30 @@ function App() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [selectedCell])
+
+  // Auto-select the first hint matching the requested technique after loading an example puzzle.
+  // setTimeout defers the setState calls out of the effect body to satisfy the lint rule.
+  useEffect(() => {
+    if (!pendingTechnique) return
+    const match = visibleHints.find((h) => h.technique === pendingTechnique)
+    if (!match) return
+    const id = match.id
+    const timer = setTimeout(() => {
+      setSelectedHintId(id)
+      setSpoilerLevel('nudge')
+      setPendingTechnique(null)
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [visibleHints, pendingTechnique])
+
+  const loadTechniqueExample = (grid: string, techniqueName: string) => {
+    setGrid(parseGridString(grid))
+    setSelectedCell(null)
+    setSelectedHintId(null)
+    setShowCandidates(true)
+    setPendingTechnique(techniqueName)
+    workspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const savePuzzle = () => {
     const saved = makeSavedPuzzle(puzzleName.trim() || 'Untitled puzzle', grid)
@@ -178,7 +204,7 @@ function App() {
         </div>
       </header>
 
-      <section className="workspace">
+      <section className="workspace" ref={workspaceRef}>
         <section className="board-card" aria-label="Sudoku board">
           <div className="board-toolbar">
             <div>
@@ -349,6 +375,15 @@ function App() {
               <details>
                 <summary>Worked example</summary>
                 <p className="technique-example">{technique.example}</p>
+                {technique.exampleGrid && technique.exampleTechniqueName && (
+                  <button
+                    type="button"
+                    className="example-load-btn"
+                    onClick={() => loadTechniqueExample(technique.exampleGrid!, technique.exampleTechniqueName!)}
+                  >
+                    Open in puzzle ↑
+                  </button>
+                )}
               </details>
               <details>
                 <summary>When to look</summary>

@@ -317,6 +317,25 @@
   border-left: 3px solid var(--secondary);
 }
 
+.example-load-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--secondary);
+  background: transparent;
+  border: 1px solid var(--secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.example-load-btn:hover {
+  background: var(--secondary);
+  color: var(--bg);
+}
+
 .hint-card strong {
   color: var(--text-strong);
   font-size: 0.95rem;
