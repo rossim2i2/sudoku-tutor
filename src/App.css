@@ -131,6 +131,26 @@
   background: var(--target);
 }
 
+.sudoku-cell.pattern-highlight {
+  background: var(--pattern);
+}
+
+.sudoku-cell.remove-highlight {
+  background: var(--remove);
+}
+
+.sudoku-cell.answer-highlight {
+  background: var(--answer);
+}
+
+.sudoku-cell.context-highlight {
+  background: var(--context);
+}
+
+.sudoku-cell.is-selected {
+  box-shadow: inset 0 0 0 3px var(--selected-outline);
+}
+
 .sudoku-cell.box-border-right {
   border-right: 3px solid var(--grid-strong);
 }
@@ -199,6 +219,12 @@
   margin-top: 14px;
 }
 
+.hint-level-filter {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+}
+
 .hint-card {
   display: grid;
   gap: 4px;
@@ -230,6 +256,45 @@
 .empty-state,
 .status-line {
   color: var(--muted);
+}
+
+.hint-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.hint-legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.legend-swatch.pattern {
+  background: var(--pattern);
+}
+
+.legend-swatch.remove {
+  background: var(--remove);
+}
+
+.legend-swatch.answer {
+  background: var(--answer);
+}
+
+.legend-swatch.context {
+  background: var(--context);
 }
 
 .explanation-panel ol {

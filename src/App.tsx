@@ -12,6 +12,22 @@ import { samplePuzzles } from './samples'
 
 type Theme = 'light' | 'dark'
 type SpoilerLevel = 'nudge' | 'reasoning' | 'reveal'
+type HintLevel = 'all' | 'basic' | 'intermediate' | 'advanced' | 'killer'
+
+const hintLevelLabels: Record<HintLevel, string> = {
+  all: 'All',
+  basic: 'Basic',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
+  killer: 'Killer',
+}
+
+const hintLevelRank: Record<Exclude<HintLevel, 'all'>, number> = {
+  basic: 1,
+  intermediate: 2,
+  advanced: 3,
+  killer: 4,
+}
 
 function App() {
   const [grid, setGrid] = useState<Grid>(() => emptyGrid())
@@ -25,6 +41,7 @@ function App() {
   const [importText, setImportText] = useState('')
   const [message, setMessage] = useState('')
   const [selectedSampleId, setSelectedSampleId] = useState(samplePuzzles[0].id)
+  const [hintLevel, setHintLevel] = useState<HintLevel>('all')
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -33,7 +50,8 @@ function App() {
 
   const candidates = useMemo(() => computeCandidates(grid), [grid])
   const hints = useMemo(() => findHints(grid), [grid])
-  const selectedHint = hints.find((hint) => hint.id === selectedHintId) ?? null
+  const visibleHints = useMemo(() => filterHintsByLevel(hints, hintLevel), [hints, hintLevel])
+  const selectedHint = visibleHints.find((hint) => hint.id === selectedHintId) ?? null
   const errors = useMemo(() => validateGrid(grid), [grid])
 
   const highlighted = useMemo(() => buildHighlights(selectedCell, selectedHint, showPeers), [selectedCell, selectedHint, showPeers])
@@ -210,10 +228,18 @@ function App() {
           <section className="panel-section">
             <h2>Hint options</h2>
             <p className="muted">Ranked from simpler techniques upward. Choose one to study.</p>
+            <label className="hint-level-filter" htmlFor="hint-level">
+              Show hints up to
+              <select id="hint-level" value={hintLevel} onChange={(event) => setHintLevel(event.target.value as HintLevel)}>
+                {Object.entries(hintLevelLabels).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
             <div className="hint-list">
-              {hints.length === 0 ? (
-                <p className="empty-state">No basic hints found yet. The next versions will add more techniques.</p>
-              ) : hints.slice(0, 10).map((hint) => (
+              {visibleHints.length === 0 ? (
+                <p className="empty-state">No hints found for this level. Try widening the filter.</p>
+              ) : visibleHints.slice(0, 10).map((hint) => (
                 <button
                   type="button"
                   key={hint.id}
@@ -249,6 +275,7 @@ function App() {
                   ))}
                 </div>
                 <p className="hint-technique">{selectedHint.technique}</p>
+                <HintLegend hint={selectedHint} />
                 {spoilerLevel === 'nudge' && <p>{selectedHint.nudge}</p>}
                 {spoilerLevel === 'reasoning' && (
                   <ol>
@@ -321,11 +348,16 @@ const buildHighlights = (selectedCell: CellIndex | null, selectedHint: HintStep 
   }
 
   if (selectedHint) {
-    for (const cell of selectedHint.supportCells) highlights.set(cell, 'support-highlight')
-    for (const cell of selectedHint.targetCells) highlights.set(cell, 'target-highlight')
+    if (selectedHint.type === 'elimination') {
+      for (const cell of selectedHint.supportCells) highlights.set(cell, 'pattern-highlight')
+      for (const cell of selectedHint.targetCells) highlights.set(cell, 'remove-highlight')
+    } else {
+      for (const cell of selectedHint.supportCells) highlights.set(cell, 'context-highlight')
+      for (const cell of selectedHint.targetCells) highlights.set(cell, 'answer-highlight')
+    }
   }
 
-  if (selectedCell !== null) highlights.set(selectedCell, 'selected-highlight')
+  if (selectedCell !== null && !highlights.has(selectedCell)) highlights.set(selectedCell, 'selected-highlight')
   return highlights
 }
 
@@ -343,6 +375,30 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false
   const tagName = target.tagName.toLowerCase()
   return tagName === 'input' || tagName === 'textarea' || tagName === 'select' || target.isContentEditable
+}
+
+const filterHintsByLevel = (hints: HintStep[], level: HintLevel): HintStep[] => {
+  if (level === 'all') return hints
+  const maxRank = hintLevelRank[level]
+  return hints.filter((hint) => hintLevelRank[hint.difficulty] <= maxRank)
+}
+
+const HintLegend = ({ hint }: { hint: HintStep }) => {
+  if (hint.type === 'elimination') {
+    return (
+      <div className="hint-legend" aria-label="Hint highlight legend">
+        <span><i className="legend-swatch pattern"></i> Pattern cells</span>
+        <span><i className="legend-swatch remove"></i> Remove candidates</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="hint-legend" aria-label="Hint highlight legend">
+      <span><i className="legend-swatch answer"></i> Answer cell</span>
+      <span><i className="legend-swatch context"></i> Context cells</span>
+    </div>
+  )
 }
 
 export default App

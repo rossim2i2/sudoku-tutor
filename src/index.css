@@ -16,6 +16,11 @@
   --peer: #e0f2fe;
   --support: #fef3c7;
   --target: #ddd6fe;
+  --pattern: #bbf7d0;
+  --remove: #fecaca;
+  --answer: #ddd6fe;
+  --context: #fef3c7;
+  --selected-outline: #2563eb;
   --button-bg: #ffffff;
   --button-active: #f5f3ff;
   --danger: #dc2626;
@@ -47,6 +52,11 @@
   --peer: #082f49;
   --support: #451a03;
   --target: #3b0764;
+  --pattern: #064e3b;
+  --remove: #7f1d1d;
+  --answer: #3b0764;
+  --context: #451a03;
+  --selected-outline: #60a5fa;
   --button-bg: #111827;
   --button-active: #1e1b4b;
   --danger: #f87171;
