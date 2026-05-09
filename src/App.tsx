@@ -80,12 +80,17 @@ function App() {
         return
       }
 
-      if (event.key.startsWith('Arrow')) {
+      const isUp = event.key === 'ArrowUp' || event.key === 'k'
+      const isDown = event.key === 'ArrowDown' || event.key === 'j'
+      const isLeft = event.key === 'ArrowLeft' || event.key === 'h'
+      const isRight = event.key === 'ArrowRight' || event.key === 'l'
+
+      if (isUp || isDown || isLeft || isRight) {
         event.preventDefault()
         const row = rowOf(selectedCell)
         const column = columnOf(selectedCell)
-        const nextRow = event.key === 'ArrowUp' ? Math.max(0, row - 1) : event.key === 'ArrowDown' ? Math.min(8, row + 1) : row
-        const nextColumn = event.key === 'ArrowLeft' ? Math.max(0, column - 1) : event.key === 'ArrowRight' ? Math.min(8, column + 1) : column
+        const nextRow = isUp ? Math.max(0, row - 1) : isDown ? Math.min(8, row + 1) : row
+        const nextColumn = isLeft ? Math.max(0, column - 1) : isRight ? Math.min(8, column + 1) : column
         setSelectedCell(cellIndex(nextRow, nextColumn))
         return
       }
@@ -221,7 +226,7 @@ function App() {
                 Highlight peers
               </label>
             </div>
-            <p className="keyboard-help">1–9 enter · Backspace/0/. clear · arrows move</p>
+            <p className="keyboard-help">1–9 enter · Backspace/0/. clear · arrows/hjkl move</p>
           </div>
 
           <div className="board-status">
