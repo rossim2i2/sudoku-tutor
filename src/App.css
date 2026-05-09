@@ -246,12 +246,75 @@
 
 .hint-card span,
 .hint-technique,
-.technique-card span {
-  color: var(--accent);
+.technique-card span,
+.difficulty-badge {
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.difficulty-badge.difficulty-basic    { color: var(--pattern); }
+.difficulty-badge.difficulty-intermediate { color: var(--secondary); }
+.difficulty-badge.difficulty-advanced { color: var(--accent); }
+.difficulty-badge.difficulty-killer   { color: var(--remove); }
+
+.technique-summary {
+  color: var(--text-2);
+  font-size: 0.92rem;
+  margin: 6px 0 10px;
+  line-height: 1.5;
+}
+
+.technique-card details {
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+  padding-top: 6px;
+}
+
+.technique-card details summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  list-style: none;
+  user-select: none;
+  padding: 2px 0;
+}
+
+.technique-card details summary::-webkit-details-marker { display: none; }
+
+.technique-card details summary::before {
+  content: '▸ ';
+  font-size: 0.7rem;
+}
+
+.technique-card details[open] summary::before {
+  content: '▾ ';
+}
+
+.technique-card details ul,
+.technique-card details ol {
+  margin: 8px 0 4px 16px;
+  padding: 0;
+}
+
+.technique-card details li {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.technique-example {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  background: var(--surface-1);
+  border-radius: 8px;
+  border-left: 3px solid var(--secondary);
 }
 
 .hint-card strong {

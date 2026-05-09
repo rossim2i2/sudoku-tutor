@@ -343,13 +343,29 @@ function App() {
         <div className="technique-grid">
           {techniques.map((technique) => (
             <article className="technique-card" key={technique.slug}>
-              <span>{technique.difficulty}</span>
+              <span className={`difficulty-badge difficulty-${technique.difficulty.toLowerCase()}`}>{technique.difficulty}</span>
               <h3>{technique.title}</h3>
-              <p>{technique.summary}</p>
+              <p className="technique-summary">{technique.summary}</p>
               <details>
-                <summary>How to spot it</summary>
+                <summary>Worked example</summary>
+                <p className="technique-example">{technique.example}</p>
+              </details>
+              <details>
+                <summary>When to look</summary>
                 <ul>
                   {technique.whenToLook.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </details>
+              <details>
+                <summary>Step by step</summary>
+                <ol>
+                  {technique.steps.map((item) => <li key={item}>{item}</li>)}
+                </ol>
+              </details>
+              <details>
+                <summary>Common mistakes</summary>
+                <ul>
+                  {technique.mistakes.map((item) => <li key={item}>{item}</li>)}
                 </ul>
               </details>
             </article>
