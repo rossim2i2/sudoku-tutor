@@ -8,7 +8,8 @@ import type { CellIndex, Digit, Grid, HintStep, SavedPuzzle } from './solver/typ
 import { DIGITS } from './solver/types'
 import { gridFromSavedPuzzle, loadSavedPuzzles, makeSavedPuzzle, persistSavedPuzzles } from './storage/puzzles'
 import { techniques } from './learn/techniques'
-import { samplePuzzles } from './samples'
+import { DIFFICULTIES, getRandomSample } from './samples'
+import type { SampleDifficulty } from './samples'
 
 type Theme = 'light' | 'dark'
 type SpoilerLevel = 'nudge' | 'reasoning' | 'reveal'
@@ -41,7 +42,7 @@ function App() {
   const [showCandidates, setShowCandidates] = useState(true)
   const [importText, setImportText] = useState('')
   const [message, setMessage] = useState('')
-  const [selectedSampleId, setSelectedSampleId] = useState(samplePuzzles[0].id)
+  const [selectedDifficulty, setSelectedDifficulty] = useState<SampleDifficulty>('Easy')
   const [hintLevel, setHintLevel] = useState<HintLevel>('all')
 
   useEffect(() => {
@@ -133,7 +134,7 @@ function App() {
   }
 
   const loadSample = () => {
-    const sample = samplePuzzles.find((candidate) => candidate.id === selectedSampleId) ?? samplePuzzles[0]
+    const sample = getRandomSample(selectedDifficulty)
     setGrid(parseGridString(sample.grid))
     setPuzzleName(sample.name)
     setSelectedHintId(null)
@@ -156,10 +157,10 @@ function App() {
             {theme === 'dark' ? 'Light' : 'Dark'} mode
           </button>
           <div className="sample-loader">
-            <label htmlFor="sample-select">Sample</label>
-            <select id="sample-select" value={selectedSampleId} onChange={(event) => setSelectedSampleId(event.target.value)}>
-              {samplePuzzles.map((sample) => (
-                <option key={sample.id} value={sample.id}>{sample.difficulty}: {sample.name}</option>
+            <label htmlFor="sample-select">Difficulty</label>
+            <select id="sample-select" value={selectedDifficulty} onChange={(event) => setSelectedDifficulty(event.target.value as SampleDifficulty)}>
+              {DIFFICULTIES.map((difficulty) => (
+                <option key={difficulty} value={difficulty}>{difficulty}</option>
               ))}
             </select>
             <button type="button" onClick={loadSample}>Load</button>

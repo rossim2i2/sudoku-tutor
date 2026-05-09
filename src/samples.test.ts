@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseGridString } from './solver/grid'
-import { samplePuzzles } from './samples'
+import { DIFFICULTIES, getRandomSample, samplePuzzles } from './samples'
 
 describe('sample puzzles', () => {
   it('all sample puzzles parse as valid 81-character grids', () => {
@@ -10,7 +10,17 @@ describe('sample puzzles', () => {
     }
   })
 
-  it('includes expected difficulty levels', () => {
-    expect(samplePuzzles.map((sample) => sample.difficulty)).toEqual(['Easy', 'Medium', 'Hard', 'Expert'])
+  it('has at least 2 puzzles per difficulty level', () => {
+    for (const difficulty of DIFFICULTIES) {
+      const count = samplePuzzles.filter((s) => s.difficulty === difficulty).length
+      expect(count, `${difficulty} pool size`).toBeGreaterThanOrEqual(2)
+    }
+  })
+
+  it('getRandomSample returns a puzzle at the requested difficulty', () => {
+    for (const difficulty of DIFFICULTIES) {
+      const sample = getRandomSample(difficulty)
+      expect(sample.difficulty).toBe(difficulty)
+    }
   })
 })
