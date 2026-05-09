@@ -20,6 +20,21 @@ describe('solver', () => {
     const hints = findHints(grid)
     expect(hints.length).toBeGreaterThan(0)
     expect(hints[0].nudge.length).toBeGreaterThan(0)
+    expect(hints.find((hint) => hint.type === 'placement')?.placeDigit).toBeDefined()
+  })
+
+  it('uses override candidates when finding hints', () => {
+    const grid = parseGridString(sample)
+    const candidates = computeCandidates(grid)
+    candidates.set(2, new Set([1]))
+
+    const hints = findHints(grid, candidates)
+    expect(hints[0]).toMatchObject({
+      type: 'placement',
+      technique: 'Naked single',
+      targetCells: [2],
+      placeDigit: 1,
+    })
   })
 
   it('adds color groups to Simple Coloring hints', () => {

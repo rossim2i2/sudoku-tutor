@@ -237,6 +237,11 @@
   min-width: 42px;
 }
 
+.compact-button {
+  padding: 0.4rem 0.65rem;
+  font-size: 0.82rem;
+}
+
 .side-panel {
   display: grid;
   gap: 18px;
@@ -441,6 +446,10 @@
   color: var(--text-strong);
   margin: 10px 0 0;
   padding-left: 1.2rem;
+}
+
+.hint-actions {
+  margin-top: 14px;
 }
 
 .saved-puzzle {

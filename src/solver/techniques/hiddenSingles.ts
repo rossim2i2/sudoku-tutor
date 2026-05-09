@@ -26,6 +26,7 @@ export const findHiddenSingles = (grid: Grid, candidates: CandidateMap): HintSte
         supportCells,
         houses: [house],
         eliminateCandidates: [],
+        placeDigit: digit,
         nudge: `Look for where ${digit} can go in ${houseLabel(house)}.`,
         reasoning: [
           `${houseLabel(house)} still needs a ${digit}.`,

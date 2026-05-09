@@ -17,6 +17,7 @@ export const findNakedSingles = (candidates: CandidateMap): HintStep[] => {
       supportCells: [],
       houses: [],
       eliminateCandidates: [],
+      placeDigit: digit,
       nudge: `${formatCell(cell)} has only one possible candidate left.`,
       reasoning: [
         `${formatCell(cell)} can currently contain only ${candidatesText(digits)}.`,

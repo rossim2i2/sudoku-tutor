@@ -35,6 +35,7 @@ export type HintStep = {
   supportCells: CellIndex[]
   houses: HouseRef[]
   eliminateCandidates: Array<{ cell: CellIndex; digit: Digit }>
+  placeDigit?: Digit
   highlightGroups?: HintHighlightGroup[]
   nudge: string
   reasoning: string[]

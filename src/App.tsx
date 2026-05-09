@@ -4,7 +4,7 @@ import { computeCandidates } from './solver/candidates'
 import { boxOf, cellIndex, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
 import { boxCells, columnCells, findConflictCells, rowCells, validateGrid } from './solver/houses'
 import { findHints } from './solver/hints'
-import type { CellIndex, Digit, Grid, HintHighlightRole, HintStep, SavedPuzzle } from './solver/types'
+import type { CandidateMap, CellIndex, Digit, Grid, HintHighlightRole, HintStep, SavedPuzzle } from './solver/types'
 import { DIGITS } from './solver/types'
 import { gridFromSavedPuzzle, loadSavedPuzzles, makeSavedPuzzle, persistSavedPuzzles } from './storage/puzzles'
 import { techniques } from './learn/techniques'
@@ -48,6 +48,7 @@ function App() {
   const [timerSeconds, setTimerSeconds] = useState(0)
   const [timerStarted, setTimerStarted] = useState(false)
   const [completionDismissed, setCompletionDismissed] = useState(false)
+  const [workingCandidates, setWorkingCandidates] = useState<CandidateMap | null>(null)
   const workspaceRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -55,8 +56,12 @@ function App() {
     localStorage.setItem('sudoku-tutor:theme', theme)
   }, [theme])
 
-  const candidates = useMemo(() => computeCandidates(grid), [grid])
-  const hints = useMemo(() => findHints(grid), [grid])
+  const computedCandidates = useMemo(() => computeCandidates(grid), [grid])
+  const candidates = useMemo(
+    () => workingCandidates ? sanitizeWorkingCandidates(grid, computedCandidates, workingCandidates) : computedCandidates,
+    [grid, computedCandidates, workingCandidates],
+  )
+  const hints = useMemo(() => findHints(grid, candidates), [grid, candidates])
   const visibleHints = useMemo(() => filterHintsByLevel(hints, hintLevel), [hints, hintLevel])
   const selectedHint = visibleHints.find((hint) => hint.id === selectedHintId) ?? null
   const errors = useMemo(() => validateGrid(grid), [grid])
@@ -71,10 +76,47 @@ function App() {
 
   const updateCell = useCallback((index: CellIndex, value: Digit | null) => {
     setGrid((current) => setCellValue(current, index, value, value !== null))
+    setWorkingCandidates(null)
     setSelectedHintId(null)
     setTimerStarted(true)
     setSpoilerLevel('nudge')
   }, [])
+
+  const applySelectedHint = () => {
+    if (!selectedHint) return
+
+    if (selectedHint.type === 'placement') {
+      const target = selectedHint.targetCells[0]
+      const digit = selectedHint.placeDigit ?? singleCandidate(candidates.get(target))
+      if (!digit) {
+        setMessage('This placement hint does not have a single applicable digit.')
+        return
+      }
+
+      setGrid((current) => setCellValue(current, target, digit, false))
+      setWorkingCandidates(null)
+      setSelectedCell(target)
+      setSelectedHintId(null)
+      setSpoilerLevel('nudge')
+      setTimerStarted(true)
+      setMessage(`Placed ${digit} at r${rowOf(target) + 1}c${columnOf(target) + 1}.`)
+      return
+    }
+
+    const eliminations = selectedHint.eliminateCandidates.filter((item) => candidates.get(item.cell)?.has(item.digit))
+    if (eliminations.length === 0) {
+      setMessage('No remaining candidates to remove for this hint.')
+      return
+    }
+
+    const next = cloneCandidates(candidates)
+    for (const item of eliminations) next.get(item.cell)?.delete(item.digit)
+    setWorkingCandidates(next)
+    setSelectedHintId(null)
+    setSpoilerLevel('nudge')
+    setTimerStarted(true)
+    setMessage(`Removed ${eliminations.length} candidate${eliminations.length === 1 ? '' : 's'}.`)
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -144,6 +186,7 @@ function App() {
     setCompletionDismissed(false)
     setSelectedHintId(null)
     setSelectedCell(null)
+    setWorkingCandidates(null)
   }
 
   const loadTechniqueExample = (grid: string, techniqueName: string) => {
@@ -272,6 +315,11 @@ function App() {
                 <input type="checkbox" checked={showPeers} onChange={(event) => setShowPeers(event.target.checked)} />
                 Highlight peers
               </label>
+              {workingCandidates && (
+                <button type="button" className="ghost compact-button" onClick={() => { setWorkingCandidates(null); setMessage('Reset candidate eliminations.') }}>
+                  Reset candidates
+                </button>
+              )}
             </div>
             <p className="keyboard-help">1–9 enter · Backspace/0/. clear · arrows/hjkl move</p>
           </div>
@@ -367,6 +415,9 @@ function App() {
                     ))}
                   </ul>
                 )}
+                <div className="hint-actions">
+                  <button type="button" onClick={applySelectedHint}>Apply hint</button>
+                </div>
               </>
             ) : (
               <p className="empty-state">Select a hint to see how it works.</p>
@@ -496,6 +547,29 @@ const isEditableTarget = (target: EventTarget | null): boolean => {
   if (!(target instanceof HTMLElement)) return false
   const tagName = target.tagName.toLowerCase()
   return tagName === 'input' || tagName === 'textarea' || tagName === 'select' || target.isContentEditable
+}
+
+const cloneCandidates = (candidates: CandidateMap): CandidateMap =>
+  new Map([...candidates.entries()].map(([cell, digits]) => [cell, new Set(digits)]))
+
+const sanitizeWorkingCandidates = (grid: Grid, computed: CandidateMap, working: CandidateMap): CandidateMap => {
+  const sanitized: CandidateMap = new Map()
+  for (let index = 0; index < 81; index += 1) {
+    if (grid[index].value !== null) {
+      sanitized.set(index, new Set<Digit>())
+      continue
+    }
+
+    const allowed = computed.get(index) ?? new Set<Digit>()
+    const current = working.get(index) ?? allowed
+    sanitized.set(index, new Set([...current].filter((digit) => allowed.has(digit))))
+  }
+  return sanitized
+}
+
+const singleCandidate = (digits: Set<Digit> | undefined): Digit | null => {
+  if (!digits || digits.size !== 1) return null
+  return [...digits][0]
 }
 
 const filterHintsByLevel = (hints: HintStep[], level: HintLevel): HintStep[] => {

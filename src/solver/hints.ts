@@ -10,10 +10,10 @@ import { findSimpleColorings } from './techniques/simpleColoring'
 import { findSkyscrapers } from './techniques/skyscraper'
 import { findWWings } from './techniques/wWing'
 import { findXYWings } from './techniques/xyWing'
-import type { Grid, HintStep } from './types'
+import type { CandidateMap, Grid, HintStep } from './types'
 
-export const findHints = (grid: Grid): HintStep[] => {
-  const candidates = computeCandidates(grid)
+export const findHints = (grid: Grid, candidateOverride?: CandidateMap): HintStep[] => {
+  const candidates = candidateOverride ?? computeCandidates(grid)
   return [
     ...findNakedSingles(candidates),
     ...findHiddenSingles(grid, candidates),
