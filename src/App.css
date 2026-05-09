@@ -349,6 +349,12 @@
   margin-top: 10px;
 }
 
+.toggle-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .toggle-row {
   display: flex;
   gap: 6px;

@@ -38,6 +38,7 @@ function App() {
   const [puzzleName, setPuzzleName] = useState('Untitled puzzle')
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('sudoku-tutor:theme') as Theme) || 'dark')
   const [showPeers, setShowPeers] = useState(true)
+  const [showCandidates, setShowCandidates] = useState(true)
   const [importText, setImportText] = useState('')
   const [message, setMessage] = useState('')
   const [selectedSampleId, setSelectedSampleId] = useState(samplePuzzles[0].id)
@@ -188,13 +189,13 @@ function App() {
               >
                 {cell.value ? (
                   <span className={cell.given ? 'given-value' : 'value'}>{cell.value}</span>
-                ) : (
+                ) : showCandidates ? (
                   <span className="candidate-grid" aria-hidden="true">
                     {DIGITS.map((digit) => (
                       <span key={digit}>{candidates.get(index)?.has(digit) ? digit : ''}</span>
                     ))}
                   </span>
-                )}
+                ) : null}
               </button>
             ))}
           </div>
@@ -209,10 +210,16 @@ function App() {
           </div>
 
           <div className="board-meta">
-            <label className="toggle-row">
-              <input type="checkbox" checked={showPeers} onChange={(event) => setShowPeers(event.target.checked)} />
-              Highlight peers
-            </label>
+            <div className="toggle-group">
+              <label className="toggle-row">
+                <input type="checkbox" checked={showCandidates} onChange={(event) => setShowCandidates(event.target.checked)} />
+                Show candidates
+              </label>
+              <label className="toggle-row">
+                <input type="checkbox" checked={showPeers} onChange={(event) => setShowPeers(event.target.checked)} />
+                Highlight peers
+              </label>
+            </div>
             <p className="keyboard-help">1–9 enter · Backspace/0/. clear · arrows move</p>
           </div>
 
@@ -222,7 +229,7 @@ function App() {
             {selectedCell !== null && !errors.length && !message && (
               <span className="status-line">
                 r{rowOf(selectedCell) + 1}c{columnOf(selectedCell) + 1}
-                {selectedCandidates && selectedCandidates.size > 0 ? ` · candidates: ${[...selectedCandidates].join(', ')}` : ''}
+                {showCandidates && selectedCandidates && selectedCandidates.size > 0 ? ` · candidates: ${[...selectedCandidates].join(', ')}` : ''}
               </span>
             )}
           </div>
