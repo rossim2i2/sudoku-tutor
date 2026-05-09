@@ -108,4 +108,84 @@ export const techniques: TechniqueArticle[] = [
       'Applying the elimination outside the house where the pair exists.',
     ],
   },
+  {
+    slug: 'naked-triple',
+    title: 'Naked triple',
+    difficulty: 'Intermediate',
+    summary: 'Three cells in the same house collectively contain only three candidates, so those candidates cannot appear elsewhere in that house.',
+    whenToLook: [
+      'When three cells in a row, column, or box have candidate sets made from the same three digits.',
+      'When naked pairs almost appear, but the pattern uses three cells instead of two.',
+    ],
+    steps: [
+      'Find three cells in one house.',
+      'Confirm their combined candidates are exactly three digits.',
+      'Those three digits must occupy those three cells in some order.',
+      'Remove those digits from other cells in the same house.',
+    ],
+    mistakes: [
+      'Using three cells whose combined candidates include four or more digits.',
+      'Applying eliminations outside the house where the triple exists.',
+    ],
+  },
+  {
+    slug: 'hidden-pair',
+    title: 'Hidden pair',
+    difficulty: 'Intermediate',
+    summary: 'Two digits can only appear in the same two cells within a house, so other candidates can be removed from those cells.',
+    whenToLook: [
+      'When two digits seem restricted to the same two cells.',
+      'When candidate grids are crowded and naked pairs are not obvious.',
+    ],
+    steps: [
+      'Pick a row, column, or box.',
+      'Track where two digits can appear.',
+      'If both digits are confined to the same two cells, they form a hidden pair.',
+      'Remove all other candidates from those two cells.',
+    ],
+    mistakes: [
+      'Looking only at the cells instead of tracking the digits across the house.',
+      'Forgetting that hidden pairs eliminate candidates inside the pair cells, not outside them.',
+    ],
+  },
+  {
+    slug: 'hidden-triple',
+    title: 'Hidden triple',
+    difficulty: 'Intermediate',
+    summary: 'Three digits are confined to the same three cells within a house, even if those cells contain extra candidates.',
+    whenToLook: [
+      'When three digits have limited possible locations in a house.',
+      'When crowded candidate grids hide a subset pattern.',
+    ],
+    steps: [
+      'Pick three digits in one house.',
+      'Find all cells that can contain those digits.',
+      'If the possible cells are exactly three cells, the digits must occupy them.',
+      'Remove all other candidates from those cells.',
+    ],
+    mistakes: [
+      'Accepting four possible cells as a hidden triple.',
+      'Removing the hidden digits instead of removing the other candidates.',
+    ],
+  },
+  {
+    slug: 'x-wing',
+    title: 'X-Wing',
+    difficulty: 'Advanced',
+    summary: 'A candidate forms a rectangle across two rows and two columns, allowing eliminations from the crossing lines.',
+    whenToLook: [
+      'When a single candidate appears exactly twice in two different rows and lines up in the same columns.',
+      'Or when it appears exactly twice in two columns and lines up in the same rows.',
+    ],
+    steps: [
+      'Choose one candidate digit.',
+      'Scan rows or columns where that digit appears exactly twice.',
+      'Find two rows/columns whose candidate positions align.',
+      'Remove that candidate from other cells in the crossing columns/rows.',
+    ],
+    mistakes: [
+      'Using rows or columns where the candidate appears more than twice.',
+      'Eliminating from the rectangle corners instead of the other cells in the crossing lines.',
+    ],
+  },
 ]
