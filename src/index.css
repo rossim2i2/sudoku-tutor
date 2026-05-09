@@ -20,6 +20,8 @@
   --remove: #fecaca;
   --answer: #ddd6fe;
   --context: #fef3c7;
+  --color-a: #cffafe;
+  --color-b: #e9d5ff;
   --selected-outline: #2563eb;
   --button-bg: #ffffff;
   --button-active: #f5f3ff;
@@ -56,6 +58,8 @@
   --remove: #7f1d1d;
   --answer: #3b0764;
   --context: #451a03;
+  --color-a: #164e63;
+  --color-b: #581c87;
   --selected-outline: #60a5fa;
   --button-bg: #111827;
   --button-active: #1e1b4b;

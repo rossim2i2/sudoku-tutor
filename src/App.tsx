@@ -4,7 +4,7 @@ import { computeCandidates } from './solver/candidates'
 import { boxOf, cellIndex, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
 import { boxCells, columnCells, findConflictCells, rowCells, validateGrid } from './solver/houses'
 import { findHints } from './solver/hints'
-import type { CellIndex, Digit, Grid, HintStep, SavedPuzzle } from './solver/types'
+import type { CellIndex, Digit, Grid, HintHighlightRole, HintStep, SavedPuzzle } from './solver/types'
 import { DIGITS } from './solver/types'
 import { gridFromSavedPuzzle, loadSavedPuzzles, makeSavedPuzzle, persistSavedPuzzles } from './storage/puzzles'
 import { techniques } from './learn/techniques'
@@ -440,33 +440,45 @@ function App() {
   )
 }
 
-const buildHighlights = (selectedCell: CellIndex | null, selectedHint: HintStep | null, showPeers: boolean): Map<CellIndex, string> => {
-  const highlights = new Map<CellIndex, string>()
+const buildHighlights = (selectedCell: CellIndex | null, selectedHint: HintStep | null, showPeers: boolean): Map<CellIndex, Set<string>> => {
+  const highlights = new Map<CellIndex, Set<string>>()
 
   if (selectedCell !== null && showPeers) {
     for (const cell of [...rowCells(rowOf(selectedCell)), ...columnCells(columnOf(selectedCell)), ...boxCells(boxOf(selectedCell))]) {
-      highlights.set(cell, 'peer-highlight')
+      addHighlight(highlights, cell, 'peer-highlight')
     }
   }
 
   if (selectedHint) {
-    if (selectedHint.type === 'elimination') {
-      for (const cell of selectedHint.supportCells) highlights.set(cell, 'pattern-highlight')
-      for (const cell of selectedHint.targetCells) highlights.set(cell, 'remove-highlight')
+    if (selectedHint.highlightGroups) {
+      for (const group of selectedHint.highlightGroups) {
+        for (const cell of group.cells) addHighlight(highlights, cell, hintHighlightClass(group.role))
+      }
+    } else if (selectedHint.type === 'elimination') {
+      for (const cell of selectedHint.supportCells) addHighlight(highlights, cell, 'pattern-highlight')
+      for (const cell of selectedHint.targetCells) addHighlight(highlights, cell, 'remove-highlight')
     } else {
-      for (const cell of selectedHint.supportCells) highlights.set(cell, 'context-highlight')
-      for (const cell of selectedHint.targetCells) highlights.set(cell, 'answer-highlight')
+      for (const cell of selectedHint.supportCells) addHighlight(highlights, cell, 'context-highlight')
+      for (const cell of selectedHint.targetCells) addHighlight(highlights, cell, 'answer-highlight')
     }
   }
 
-  if (selectedCell !== null && !highlights.has(selectedCell)) highlights.set(selectedCell, 'selected-highlight')
+  if (selectedCell !== null && !highlights.has(selectedCell)) addHighlight(highlights, selectedCell, 'selected-highlight')
   return highlights
 }
 
-const cellClassName = (index: CellIndex, highlighted: Map<CellIndex, string>, selectedCell: CellIndex | null, conflictCells: Set<CellIndex>): string => {
+const addHighlight = (highlights: Map<CellIndex, Set<string>>, cell: CellIndex, className: string) => {
+  const existing = highlights.get(cell) ?? new Set<string>()
+  existing.add(className)
+  highlights.set(cell, existing)
+}
+
+const hintHighlightClass = (role: HintHighlightRole): string => `${role}-highlight`
+
+const cellClassName = (index: CellIndex, highlighted: Map<CellIndex, Set<string>>, selectedCell: CellIndex | null, conflictCells: Set<CellIndex>): string => {
   const classes = ['sudoku-cell']
   if (conflictCells.has(index)) classes.push('conflict-cell')
-  else if (highlighted.has(index)) classes.push(highlighted.get(index)!)
+  if (highlighted.has(index)) classes.push(...highlighted.get(index)!)
   if (selectedCell === index) classes.push('is-selected')
   if (columnOf(index) === 2 || columnOf(index) === 5) classes.push('box-border-right')
   if (rowOf(index) === 2 || rowOf(index) === 5) classes.push('box-border-bottom')
@@ -493,6 +505,16 @@ const filterHintsByLevel = (hints: HintStep[], level: HintLevel): HintStep[] => 
 }
 
 const HintLegend = ({ hint }: { hint: HintStep }) => {
+  if (hint.highlightGroups) {
+    return (
+      <div className="hint-legend" aria-label="Hint highlight legend">
+        {hint.highlightGroups.map((group) => (
+          <span key={`${group.role}-${group.label}`}><i className={`legend-swatch ${group.role}`}></i> {group.label}</span>
+        ))}
+      </div>
+    )
+  }
+
   if (hint.type === 'elimination') {
     return (
       <div className="hint-legend" aria-label="Hint highlight legend">

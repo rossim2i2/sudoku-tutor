@@ -163,6 +163,22 @@
   background: var(--context);
 }
 
+.sudoku-cell.color-a-highlight {
+  background: var(--color-a);
+}
+
+.sudoku-cell.color-b-highlight {
+  background: var(--color-b);
+}
+
+.sudoku-cell.color-a-highlight.remove-highlight {
+  background: linear-gradient(135deg, var(--color-a) 0 55%, var(--remove) 55% 100%);
+}
+
+.sudoku-cell.color-b-highlight.remove-highlight {
+  background: linear-gradient(135deg, var(--color-b) 0 55%, var(--remove) 55% 100%);
+}
+
 .sudoku-cell.conflict-cell {
   background: var(--remove);
 }
@@ -401,6 +417,14 @@
 
 .legend-swatch.context {
   background: var(--context);
+}
+
+.legend-swatch.color-a {
+  background: var(--color-a);
+}
+
+.legend-swatch.color-b {
+  background: var(--color-b);
 }
 
 .explanation-panel ol {

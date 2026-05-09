@@ -18,6 +18,14 @@ export type CandidateMap = Map<CellIndex, Set<Digit>>
 
 export type Difficulty = 'basic' | 'intermediate' | 'advanced' | 'killer'
 
+export type HintHighlightRole = 'pattern' | 'remove' | 'answer' | 'context' | 'color-a' | 'color-b'
+
+export type HintHighlightGroup = {
+  label: string
+  role: HintHighlightRole
+  cells: CellIndex[]
+}
+
 export type HintStep = {
   id: string
   type: 'placement' | 'elimination'
@@ -27,6 +35,7 @@ export type HintStep = {
   supportCells: CellIndex[]
   houses: HouseRef[]
   eliminateCandidates: Array<{ cell: CellIndex; digit: Digit }>
+  highlightGroups?: HintHighlightGroup[]
   nudge: string
   reasoning: string[]
   reveal: string
