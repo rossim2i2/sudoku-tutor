@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { computeCandidates } from './solver/candidates'
 import { boxOf, cellIndex, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
-import { boxCells, columnCells, rowCells, validateGrid } from './solver/houses'
+import { boxCells, columnCells, findConflictCells, rowCells, validateGrid } from './solver/houses'
 import { findHints } from './solver/hints'
 import type { CellIndex, Digit, Grid, HintStep, SavedPuzzle } from './solver/types'
 import { DIGITS } from './solver/types'
@@ -55,6 +55,10 @@ function App() {
   const visibleHints = useMemo(() => filterHintsByLevel(hints, hintLevel), [hints, hintLevel])
   const selectedHint = visibleHints.find((hint) => hint.id === selectedHintId) ?? null
   const errors = useMemo(() => validateGrid(grid), [grid])
+  const conflictCells = useMemo(() => findConflictCells(grid), [grid])
+  const isComplete = useMemo(() =>
+    errors.length === 0 && grid.every((cell) => cell.value !== null),
+  [grid, errors])
 
   const highlighted = useMemo(() => buildHighlights(selectedCell, selectedHint, showPeers), [selectedCell, selectedHint, showPeers])
 
@@ -189,7 +193,7 @@ function App() {
               <button
                 type="button"
                 key={index}
-                className={cellClassName(index, highlighted, selectedCell)}
+                className={cellClassName(index, highlighted, selectedCell, conflictCells)}
                 onClick={() => setSelectedCell(index)}
                 aria-label={`row ${rowOf(index) + 1} column ${columnOf(index) + 1}`}
               >
@@ -230,9 +234,10 @@ function App() {
           </div>
 
           <div className="board-status">
-            {errors.length > 0 && <span className="error-line">{errors[0]}</span>}
-            {message && !errors.length && <span className="status-line">{message}</span>}
-            {selectedCell !== null && !errors.length && !message && (
+            {isComplete && <span className="complete-line">Puzzle solved!</span>}
+            {!isComplete && errors.length > 0 && <span className="error-line">{errors[0]}</span>}
+            {!isComplete && message && !errors.length && <span className="status-line">{message}</span>}
+            {!isComplete && selectedCell !== null && !errors.length && !message && (
               <span className="status-line">
                 r{rowOf(selectedCell) + 1}c{columnOf(selectedCell) + 1}
                 {showCandidates && selectedCandidates && selectedCandidates.size > 0 ? ` · candidates: ${[...selectedCandidates].join(', ')}` : ''}
@@ -378,9 +383,10 @@ const buildHighlights = (selectedCell: CellIndex | null, selectedHint: HintStep 
   return highlights
 }
 
-const cellClassName = (index: CellIndex, highlighted: Map<CellIndex, string>, selectedCell: CellIndex | null): string => {
+const cellClassName = (index: CellIndex, highlighted: Map<CellIndex, string>, selectedCell: CellIndex | null, conflictCells: Set<CellIndex>): string => {
   const classes = ['sudoku-cell']
-  if (highlighted.has(index)) classes.push(highlighted.get(index)!)
+  if (conflictCells.has(index)) classes.push('conflict-cell')
+  else if (highlighted.has(index)) classes.push(highlighted.get(index)!)
   if (selectedCell === index) classes.push('is-selected')
   if (columnOf(index) === 2 || columnOf(index) === 5) classes.push('box-border-right')
   if (rowOf(index) === 2 || rowOf(index) === 5) classes.push('box-border-bottom')

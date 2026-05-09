@@ -63,6 +63,25 @@ export const validateGrid = (grid: Grid): string[] => {
   return errors
 }
 
+export const findConflictCells = (grid: Grid): Set<CellIndex> => {
+  const conflicts = new Set<CellIndex>()
+  for (const house of allHouses()) {
+    const seen = new Map<Digit, CellIndex>()
+    for (const index of houseCells(house)) {
+      const value = grid[index].value
+      if (value === null) continue
+      const existing = seen.get(value)
+      if (existing !== undefined) {
+        conflicts.add(index)
+        conflicts.add(existing)
+      } else {
+        seen.set(value, index)
+      }
+    }
+  }
+  return conflicts
+}
+
 export const houseLabel = (house: HouseRef): string => {
   if (house.type === 'row') return `row ${house.index + 1}`
   if (house.type === 'column') return `column ${house.index + 1}`

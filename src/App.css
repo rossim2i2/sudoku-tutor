@@ -147,6 +147,14 @@
   background: var(--context);
 }
 
+.sudoku-cell.conflict-cell {
+  background: var(--remove);
+}
+
+.sudoku-cell.conflict-cell .value {
+  color: var(--danger);
+}
+
 .sudoku-cell.is-selected {
   box-shadow: inset 0 0 0 3px var(--selected-outline);
 }
@@ -384,6 +392,11 @@
 
 .error-line {
   color: var(--danger);
+  font-weight: 700;
+}
+
+.complete-line {
+  color: var(--pattern);
   font-weight: 700;
 }
 
