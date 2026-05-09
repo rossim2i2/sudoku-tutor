@@ -208,20 +208,24 @@ function App() {
             <button type="button" onClick={() => selectedCell !== null && updateCell(selectedCell, null)}>Clear cell</button>
           </div>
 
-          <label className="toggle-row">
-            <input type="checkbox" checked={showPeers} onChange={(event) => setShowPeers(event.target.checked)} />
-            Lightly highlight active row, column, and box
-          </label>
-          <p className="keyboard-help">Keyboard: 1–9 enter values, Backspace/Delete/0/. clear, arrow keys move.</p>
+          <div className="board-meta">
+            <label className="toggle-row">
+              <input type="checkbox" checked={showPeers} onChange={(event) => setShowPeers(event.target.checked)} />
+              Highlight peers
+            </label>
+            <p className="keyboard-help">1–9 enter · Backspace/0/. clear · arrows move</p>
+          </div>
 
-          {selectedCell !== null && (
-            <p className="status-line">
-              Selected r{rowOf(selectedCell) + 1}c{columnOf(selectedCell) + 1}
-              {selectedCandidates && selectedCandidates.size > 0 ? ` · candidates: ${[...selectedCandidates].join(', ')}` : ''}
-            </p>
-          )}
-          {errors.length > 0 && <p className="error-line">{errors[0]}</p>}
-          {message && <p className="status-line">{message}</p>}
+          <div className="board-status">
+            {errors.length > 0 && <span className="error-line">{errors[0]}</span>}
+            {message && !errors.length && <span className="status-line">{message}</span>}
+            {selectedCell !== null && !errors.length && !message && (
+              <span className="status-line">
+                r{rowOf(selectedCell) + 1}c{columnOf(selectedCell) + 1}
+                {selectedCandidates && selectedCandidates.size > 0 ? ` · candidates: ${[...selectedCandidates].join(', ')}` : ''}
+              </span>
+            )}
+          </div>
         </section>
 
         <aside className="side-panel">

@@ -341,13 +341,21 @@
   margin: 8px 0;
 }
 
+.board-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
 .toggle-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-  justify-content: flex-start;
-  margin-top: 10px;
   color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .toggle-row input {
@@ -357,9 +365,15 @@
 
 .keyboard-help {
   color: var(--muted);
-  font-size: 0.86rem;
-  margin: 8px 0 0;
-  text-align: center;
+  font-size: 0.82rem;
+  margin: 0;
+  text-align: right;
+}
+
+.board-status {
+  min-height: 1.4rem;
+  margin-top: 8px;
+  font-size: 0.85rem;
 }
 
 .error-line {
