@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { computeCandidates } from './solver/candidates'
-import { boxOf, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
+import { boxOf, cellIndex, columnOf, emptyGrid, parseGridString, rowOf, setCellValue } from './solver/grid'
 import { boxCells, columnCells, rowCells, validateGrid } from './solver/houses'
 import { findHints } from './solver/hints'
 import type { CellIndex, Digit, Grid, HintStep, SavedPuzzle } from './solver/types'
 import { DIGITS } from './solver/types'
 import { gridFromSavedPuzzle, loadSavedPuzzles, makeSavedPuzzle, persistSavedPuzzles } from './storage/puzzles'
 import { techniques } from './learn/techniques'
-
-const SAMPLE_PUZZLE = '530070000600195000098000060800060003400803001700020006060000280000419005000080079'
+import { samplePuzzles } from './samples'
 
 type Theme = 'light' | 'dark'
 type SpoilerLevel = 'nudge' | 'reasoning' | 'reveal'
@@ -25,6 +24,7 @@ function App() {
   const [showPeers, setShowPeers] = useState(true)
   const [importText, setImportText] = useState('')
   const [message, setMessage] = useState('')
+  const [selectedSampleId, setSelectedSampleId] = useState(samplePuzzles[0].id)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -43,6 +43,42 @@ function App() {
     setSelectedHintId(null)
     setSpoilerLevel('nudge')
   }
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (selectedCell === null || isEditableTarget(event.target)) return
+
+      if (/^[1-9]$/.test(event.key)) {
+        event.preventDefault()
+        updateCell(selectedCell, Number(event.key) as Digit)
+        return
+      }
+
+      if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0' || event.key === '.') {
+        event.preventDefault()
+        updateCell(selectedCell, null)
+        return
+      }
+
+      if (event.key.startsWith('Arrow')) {
+        event.preventDefault()
+        const row = rowOf(selectedCell)
+        const column = columnOf(selectedCell)
+        const nextRow = event.key === 'ArrowUp' ? Math.max(0, row - 1) : event.key === 'ArrowDown' ? Math.min(8, row + 1) : row
+        const nextColumn = event.key === 'ArrowLeft' ? Math.max(0, column - 1) : event.key === 'ArrowRight' ? Math.min(8, column + 1) : column
+        setSelectedCell(cellIndex(nextRow, nextColumn))
+        return
+      }
+
+      if (event.key === 'Escape') {
+        setSelectedHintId(null)
+        setSpoilerLevel('nudge')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedCell])
 
   const savePuzzle = () => {
     const saved = makeSavedPuzzle(puzzleName.trim() || 'Untitled puzzle', grid)
@@ -78,11 +114,12 @@ function App() {
   }
 
   const loadSample = () => {
-    setGrid(parseGridString(SAMPLE_PUZZLE))
-    setPuzzleName('Sample puzzle')
+    const sample = samplePuzzles.find((candidate) => candidate.id === selectedSampleId) ?? samplePuzzles[0]
+    setGrid(parseGridString(sample.grid))
+    setPuzzleName(sample.name)
     setSelectedHintId(null)
     setSelectedCell(null)
-    setMessage('Loaded sample puzzle.')
+    setMessage(`Loaded ${sample.difficulty.toLowerCase()} sample: ${sample.name}.`)
   }
 
   const selectedCandidates = selectedCell === null ? null : candidates.get(selectedCell)
@@ -99,7 +136,15 @@ function App() {
           <button type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? 'Light' : 'Dark'} mode
           </button>
-          <button type="button" onClick={loadSample}>Load sample</button>
+          <div className="sample-loader">
+            <label htmlFor="sample-select">Sample</label>
+            <select id="sample-select" value={selectedSampleId} onChange={(event) => setSelectedSampleId(event.target.value)}>
+              {samplePuzzles.map((sample) => (
+                <option key={sample.id} value={sample.id}>{sample.difficulty}: {sample.name}</option>
+              ))}
+            </select>
+            <button type="button" onClick={loadSample}>Load</button>
+          </div>
           <button type="button" onClick={() => setGrid(emptyGrid())}>Clear</button>
         </div>
       </header>
@@ -149,6 +194,7 @@ function App() {
             <input type="checkbox" checked={showPeers} onChange={(event) => setShowPeers(event.target.checked)} />
             Lightly highlight active row, column, and box
           </label>
+          <p className="keyboard-help">Keyboard: 1–9 enter values, Backspace/Delete/0/. clear, arrow keys move.</p>
 
           {selectedCell !== null && (
             <p className="status-line">
@@ -284,6 +330,12 @@ const cellClassName = (index: CellIndex, highlighted: Map<CellIndex, string>, se
   if (rowOf(index) === 2 || rowOf(index) === 5) classes.push('box-border-bottom')
   if (boxOf(index) % 2 === 0) classes.push('subtle-box')
   return classes.join(' ')
+}
+
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false
+  const tagName = target.tagName.toLowerCase()
+  return tagName === 'input' || tagName === 'textarea' || tagName === 'select' || target.isContentEditable
 }
 
 export default App

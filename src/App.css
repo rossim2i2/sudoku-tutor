@@ -1,7 +1,7 @@
 .app-shell {
   width: min(1480px, calc(100vw - 32px));
   margin: 0 auto;
-  padding: 32px 0 64px;
+  padding: clamp(12px, 2vh, 24px) 0 48px;
 }
 
 .app-header {
@@ -9,7 +9,7 @@
   justify-content: space-between;
   gap: 32px;
   align-items: flex-start;
-  margin-bottom: 28px;
+  margin-bottom: clamp(12px, 2vh, 22px);
 }
 
 .eyebrow {
@@ -36,6 +36,20 @@
   gap: 10px;
 }
 
+.sample-loader {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
+.sample-loader label {
+  align-self: center;
+}
+
+.sample-loader select {
+  width: min(280px, 38vw);
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(620px, 1fr) 420px;
@@ -53,7 +67,7 @@
 }
 
 .board-card {
-  padding: 20px;
+  padding: clamp(12px, 1.8vh, 18px);
 }
 
 .board-toolbar {
@@ -69,6 +83,9 @@
 .sudoku-grid {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
+  width: min(100%, calc(100vh - 260px));
+  min-width: min(100%, 480px);
+  margin: 0 auto;
   aspect-ratio: 1;
   overflow: hidden;
   border: 3px solid var(--grid-strong);
@@ -152,7 +169,12 @@
 }
 
 .number-pad {
-  margin-top: 18px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.number-pad button {
+  min-width: 42px;
 }
 
 .side-panel {
@@ -252,8 +274,21 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-top: 14px;
+  justify-content: flex-start;
+  margin-top: 10px;
   color: var(--muted);
+}
+
+.toggle-row input {
+  width: auto;
+  margin: 0;
+}
+
+.keyboard-help {
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin: 8px 0 0;
+  text-align: center;
 }
 
 .error-line {
@@ -269,6 +304,7 @@ label {
 
 input,
 textarea,
+select,
 button {
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -278,6 +314,7 @@ button {
 }
 
 input,
+select,
 textarea {
   box-sizing: border-box;
   width: 100%;
@@ -305,5 +342,19 @@ button.ghost {
 
   .app-header {
     flex-direction: column;
+  }
+
+  .sample-loader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sample-loader select {
+    width: 100%;
+  }
+
+  .sudoku-grid {
+    width: 100%;
+    min-width: 0;
   }
 }
