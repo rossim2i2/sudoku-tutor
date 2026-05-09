@@ -1,0 +1,309 @@
+.app-shell {
+  width: min(1480px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.lede {
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 680px;
+}
+
+.header-actions,
+.board-toolbar,
+.number-pad,
+.spoiler-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(620px, 1fr) 420px;
+  gap: 24px;
+  align-items: start;
+}
+
+.board-card,
+.panel-section,
+.learn-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.board-card {
+  padding: 20px;
+}
+
+.board-toolbar {
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.board-toolbar > div {
+  display: grid;
+  gap: 6px;
+}
+
+.sudoku-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 3px solid var(--grid-strong);
+  border-radius: 16px;
+  background: var(--grid-strong);
+}
+
+.sudoku-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border: 0;
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+  background: var(--cell-bg);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  transition: background 120ms ease, box-shadow 120ms ease;
+}
+
+.sudoku-cell:hover,
+.sudoku-cell.is-selected {
+  z-index: 2;
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+
+.sudoku-cell.subtle-box {
+  background: var(--cell-alt);
+}
+
+.sudoku-cell.peer-highlight {
+  background: var(--peer);
+}
+
+.sudoku-cell.support-highlight {
+  background: var(--support);
+}
+
+.sudoku-cell.target-highlight,
+.sudoku-cell.selected-highlight {
+  background: var(--target);
+}
+
+.sudoku-cell.box-border-right {
+  border-right: 3px solid var(--grid-strong);
+}
+
+.sudoku-cell.box-border-bottom {
+  border-bottom: 3px solid var(--grid-strong);
+}
+
+.given-value,
+.value {
+  font-size: clamp(1.6rem, 4vw, 3.1rem);
+  font-weight: 750;
+}
+
+.given-value {
+  color: var(--text-strong);
+}
+
+.value {
+  color: var(--accent);
+}
+
+.candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 72%;
+  height: 72%;
+  color: var(--candidate);
+  font-size: clamp(0.55rem, 1vw, 0.86rem);
+  line-height: 1;
+}
+
+.candidate-grid span {
+  display: grid;
+  place-items: center;
+}
+
+.number-pad {
+  margin-top: 18px;
+}
+
+.side-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.panel-section,
+.learn-section {
+  padding: 18px;
+}
+
+.panel-section h2,
+.learn-section h2 {
+  margin: 0 0 8px;
+}
+
+.hint-list,
+.saved-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.hint-card {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+
+.hint-card.selected {
+  border-color: var(--accent);
+  background: var(--button-active);
+}
+
+.hint-card span,
+.hint-technique,
+.technique-card span {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hint-card strong {
+  color: var(--text-strong);
+  font-size: 0.95rem;
+}
+
+.hint-card small,
+.muted,
+.empty-state,
+.status-line {
+  color: var(--muted);
+}
+
+.explanation-panel ol {
+  padding-left: 1.4rem;
+}
+
+.reveal {
+  color: var(--text-strong);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.saved-puzzle {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.learn-section {
+  margin-top: 24px;
+}
+
+.technique-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.technique-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.technique-card h3 {
+  margin: 8px 0;
+}
+
+.toggle-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 14px;
+  color: var(--muted);
+}
+
+.error-line {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+input,
+textarea,
+button {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--button-bg);
+  color: var(--text);
+  font: inherit;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+}
+
+button {
+  padding: 9px 13px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button.ghost {
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .workspace,
+  .technique-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-header {
+    flex-direction: column;
+  }
+}
